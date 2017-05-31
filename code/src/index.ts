@@ -1,11 +1,10 @@
 declare const exports;
 
 import * as builder from 'botbuilder';
-import * as itemSearchDialog from './dialogs/initialSearch';
+import * as initialSearchDialog from './dialogs/initialSearch';
 import * as refineSearchDialog from './dialogs/refineSearch';
 
 const lib = new builder.Library('itemSearch');
-let options;
 
 export interface IItem {
     title: string;
@@ -32,15 +31,13 @@ export enum ItemPromptType {
     confirm = 3,
 }
 
-exports.createLibrary = (ops: IItemSearchPromptOptions) => {
-  options = ops
-  
-  itemSearchDialog.register(lib, options);
+exports.createLibrary = (options: IItemSearchPromptOptions) => {
+  initialSearchDialog.register(lib, options);
   refineSearchDialog.register(lib, options);
   
   return lib;
 };
 
 exports.itemSearchDialog = (session: builder.Session) => {  
-  return session.beginDialog('itemSearch:initialSearch', options);
+  return session.beginDialog('itemSearch:initialSearch');
 };

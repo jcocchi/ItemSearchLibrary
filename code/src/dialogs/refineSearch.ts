@@ -2,7 +2,7 @@ import * as builder from 'botbuilder';
 import {IItemSearchPromptOptions, ItemPromptType, IItem} from '../index' ;
 
 export function register(library: builder.Library, options: IItemSearchPromptOptions): void {
-  library.dialog('itemSearch', createDialog(options))
+  library.dialog('refineSearch', createDialog(options))
 }
 
 function createDialog (options) {

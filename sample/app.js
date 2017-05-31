@@ -16,20 +16,19 @@ server.listen(port, () => {
 })
 server.post('/api/messages', connector.listen())
 
-// Set up libraries
-bot.library(itemSearchLib.createLibrary())
+// Set up item search library
+const options = {
+  searchParameters: searchParams,
+  searchFunction: searchFunc
+}
+bot.library(itemSearchLib.createLibrary(options))
 
-// Create dialogs
+// Create dialog flow
 bot.dialog('/', [
   (session, result, next) => {
     session.send('Hi! Welcome to the ice cream bot. I can help you search for the perfect summer treat!')
 
-    const options = {
-      searchParameters: searchParams,
-      searchFunction: searchFunc
-    }
-
-    itemSearchLib.itemSearchDialog(session, options)
+    itemSearchLib.itemSearchDialog(session)
   },
   (session, args, next) => {
     session.endDialog('Goodbye')

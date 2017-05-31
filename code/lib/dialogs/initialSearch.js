@@ -2,14 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var builder = require("botbuilder");
 var index_1 = require("../index");
+var options;
 function register(library, options) {
     library.dialog('initialSearch', createDialog(options));
 }
 exports.register = register;
-function createDialog(options) {
+function createDialog(ops) {
+    options = ops;
     var dialog = [
         function (session, args, next) {
-            var firstParam = args.searchParameters[0];
+            var firstParam = options.searchParameters[0];
             if (!firstParam) {
                 session.endDialog();
                 return 'Error';
@@ -38,7 +40,7 @@ function createDialog(options) {
             session.userData[options.searchParameters[0].name] = paramVal;
             session.sendTyping();
             Promise.all([
-                options.search([paramVal])
+                options.searchFunction([paramVal])
             ]).then(function (_a) {
                 var searchResults = _a[0];
                 var cards = generateCards(session, searchResults);
@@ -57,7 +59,7 @@ function createDialog(options) {
                 session.endDialog('Glad I could help!');
             }
             else {
-                return session.beginDialog('/refineSearch');
+                return session.beginDialog('refineSearch');
             }
         }
     ];

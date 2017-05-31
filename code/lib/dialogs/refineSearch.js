@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function register(library, options) {
-    library.dialog('itemSearch', createDialog(options));
+    library.dialog('refineSearch', createDialog(options));
 }
 exports.register = register;
 function createDialog(options) {

@@ -1,14 +1,17 @@
 import * as builder from 'botbuilder';
 import {IItemSearchPromptOptions, ItemPromptType, IItem} from '../index' ;
+let options;
 
 export function register(library: builder.Library, options: IItemSearchPromptOptions): void {
   library.dialog('initialSearch', createDialog(options));
 }
 
-function createDialog (options) {
+function createDialog (ops: IItemSearchPromptOptions) {
+  options = ops
+
   var dialog = [
-    (session: builder.Session, args: IItemSearchPromptOptions, next: (args?: builder.IDialogResult<any>) => void) => {
-      const firstParam = args.searchParameters[0];
+    (session: builder.Session, args: builder.IDialogResult<any>, next: (args?: builder.IDialogResult<any>) => void) => {      
+      const firstParam = options.searchParameters[0];
     
       // Determine which prompt type to use
       if (!firstParam) {
@@ -39,7 +42,7 @@ function createDialog (options) {
 
       session.sendTyping();
       Promise.all([
-        options.search([paramVal])
+        options.searchFunction([paramVal])
       ]).then(([searchResults]) => {
         // Create a card carousel for the top 10 items returned
         let cards = generateCards(session, searchResults);
@@ -57,7 +60,7 @@ function createDialog (options) {
       if (args.response) {
         session.endDialog('Glad I could help!');
       } else { // Else, ask for the next parameter
-        return session.beginDialog('/refineSearch');
+        return session.beginDialog('refineSearch');
       }
     }
   ]
