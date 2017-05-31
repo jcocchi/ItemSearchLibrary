@@ -2,10 +2,9 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "sourceMap": false,
+        "sourceMap": true,
         "noImplicitAny": false,
-        "outDir": "../lib",
-        "noEmitOnError": true,
+        "outDir": "../lib/",
         "removeComments": true
     }
 }
