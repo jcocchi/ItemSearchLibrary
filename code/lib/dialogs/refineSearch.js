@@ -84,12 +84,11 @@ function findMissingParams(args) {
     return missingParams;
 }
 function findFirstMissingParam() {
-    var param = null;
-    options.searchParameters.forEach(function (p) {
-        if (!p.userVal) {
-            param = p;
+    for (var i = 0; i < options.searchParameters.length; i++) {
+        if (!options.searchParameters[i].userVal) {
+            return options.searchParameters[i];
         }
-    });
-    return param;
+    }
+    return null;
 }
 //# sourceMappingURL=refineSearch.js.map

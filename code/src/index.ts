@@ -29,12 +29,14 @@ export enum ItemPromptType {
   choice = 0,
   text = 1,
   number = 2,
-  confirm = 3,
+  confirm = 3
 }
 
 export function createLibrary (options: IItemSearchPromptOptions) {
   initialSearchDialog.register(lib, options);
   refineSearchDialog.register(lib);
+
+  // TODO: VALIDATE OPTIONS
   
   return lib;
 };

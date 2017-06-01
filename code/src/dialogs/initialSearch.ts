@@ -17,7 +17,8 @@ function createDialog (ops: IItemSearchPromptOptions) {
       const firstParam = options.searchParameters[0];
     
       // Determine which prompt type to use
-      if (!firstParam) {
+      if (!firstParam) { 
+        // TODO: THIS CASE SHOULD NEVER HAPPEN, SEND AN ERROR BACK TO THE USER
         session.endDialog();
         return 'Error';
       } else if(firstParam.type === ItemPromptType.choice && firstParam.choices != undefined){
@@ -28,7 +29,9 @@ function createDialog (ops: IItemSearchPromptOptions) {
         builder.Prompts.number(session, firstParam.prompt);
       } else if (firstParam.type == ItemPromptType.confirm) {
         builder.Prompts.confirm(session, firstParam.prompt);
-      }   
+      } else {
+        // TODO: THIS CASE SHOULD NEVER HAPPEN EITHER, INVALID PARAMETER TYPE
+      }
     },
     (session: builder.Session, args: builder.IDialogResult<any>, next: (args?: builder.IDialogResult<any>) => void) => {
       let paramVal;

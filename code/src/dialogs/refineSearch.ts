@@ -99,14 +99,12 @@ function findMissingParams(args: IParam[]): IParam[] {
   return missingParams;
 }
 
-function findFirstMissingParam(): IParam {
-  let param = null;
-  
-  options.searchParameters.forEach(p => {
-    if(!p.userVal) {
-      param = p;
+function findFirstMissingParam(): IParam {  
+  for(let i = 0; i < options.searchParameters.length; i++){
+    if(!options.searchParameters[i].userVal) {
+      return options.searchParameters[i];
     }
-  });
+  } 
 
-  return param;
+  return null;
 }

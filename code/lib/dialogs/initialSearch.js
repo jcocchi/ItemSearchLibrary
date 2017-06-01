@@ -30,6 +30,8 @@ function createDialog(ops) {
             else if (firstParam.type == index_1.ItemPromptType.confirm) {
                 builder.Prompts.confirm(session, firstParam.prompt);
             }
+            else {
+            }
         },
         function (session, args, next) {
             var paramVal;
