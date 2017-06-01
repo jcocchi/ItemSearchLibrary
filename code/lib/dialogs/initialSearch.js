@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var builder = require("botbuilder");
+var generateCards_1 = require("./generateCards");
 var index_1 = require("../index");
 var options;
 function register(library, options) {
@@ -11,13 +12,14 @@ function createDialog(ops) {
     options = ops;
     var dialog = [
         function (session, args, next) {
+            clearOptions();
             var firstParam = options.searchParameters[0];
             if (!firstParam) {
                 session.endDialog();
                 return 'Error';
             }
             else if (firstParam.type === index_1.ItemPromptType.choice && firstParam.choices != undefined) {
-                builder.Prompts.choice(session, firstParam.prompt, firstParam.choices);
+                builder.Prompts.choice(session, firstParam.prompt, firstParam.choices, { listStyle: builder.ListStyle.button });
             }
             else if (firstParam.type == index_1.ItemPromptType.text) {
                 builder.Prompts.text(session, firstParam.prompt);
@@ -37,20 +39,20 @@ function createDialog(ops) {
             else {
                 paramVal = args.response;
             }
-            session.userData[options.searchParameters[0].name] = paramVal;
+            options.searchParameters[0].userVal = paramVal;
             session.sendTyping();
             Promise.all([
                 options.searchFunction([paramVal])
             ]).then(function (_a) {
                 var searchResults = _a[0];
-                var cards = generateCards(session, searchResults);
+                var cards = generateCards_1.generateCards(session, searchResults);
                 if (cards) {
                     session.send(cards);
                     builder.Prompts.confirm(session, 'Did you find what you\'re looking for?');
                 }
                 else {
                     session.send('I\'m sorry, I couldn\'t find anything that matched your search. Tell me a little more about what you\'re looking for.');
-                    return session.replaceDialog('/refineSearch');
+                    return session.replaceDialog('itemSearch:refineSearch', options);
                 }
             });
         },
@@ -59,36 +61,17 @@ function createDialog(ops) {
                 session.endDialog('Glad I could help!');
             }
             else {
-                return session.beginDialog('refineSearch');
+                return session.beginDialog('itemSearch:refineSearch', options);
             }
         }
     ];
     return dialog;
 }
-function generateCards(session, results) {
-    var numCards;
-    if (results.length > 10) {
-        numCards = 10;
-    }
-    else if (results.length < 1) {
-        return false;
-    }
-    else {
-        numCards = results.length;
-    }
-    var cards = [];
-    for (var i = 0; i < numCards; i++) {
-        var item = results[i];
-        var card = new builder.HeroCard(session)
-            .title(item.title)
-            .subtitle(item.subtitle)
-            .text(item.text)
-            .images([builder.CardImage.create(session, item.imageUrl)])
-            .buttons([
-            builder.CardAction.openUrl(session, item.openUrl, 'More Details')
-        ]);
-        cards.push(card);
-    }
-    return new builder.Message(session).attachmentLayout('carousel').attachments(cards);
+function clearOptions() {
+    options.searchParameters.forEach(function (p) {
+        if (p.userVal) {
+            p.userVal = undefined;
+        }
+    });
 }
 //# sourceMappingURL=initialSearch.js.map

@@ -11,12 +11,16 @@ var ItemPromptType;
     ItemPromptType[ItemPromptType["number"] = 2] = "number";
     ItemPromptType[ItemPromptType["confirm"] = 3] = "confirm";
 })(ItemPromptType = exports.ItemPromptType || (exports.ItemPromptType = {}));
-exports.createLibrary = function (options) {
+function createLibrary(options) {
     initialSearchDialog.register(lib, options);
-    refineSearchDialog.register(lib, options);
+    refineSearchDialog.register(lib);
     return lib;
-};
-exports.itemSearchDialog = function (session) {
+}
+exports.createLibrary = createLibrary;
+;
+function itemSearchDialog(session) {
     return session.beginDialog('itemSearch:initialSearch');
-};
+}
+exports.itemSearchDialog = itemSearchDialog;
+;
 //# sourceMappingURL=index.js.map

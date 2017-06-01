@@ -1,5 +1,6 @@
 import * as builder from 'botbuilder';
-import {IItemSearchPromptOptions, ItemPromptType, IItem} from '../index' ;
+import {generateCards} from './generateCards' ;
+import {IItemSearchPromptOptions, ItemPromptType, IItem, IParam} from '../index' ;
 let options;
 
 export function register(library: builder.Library, options: IItemSearchPromptOptions): void {
@@ -11,6 +12,8 @@ function createDialog (ops: IItemSearchPromptOptions) {
 
   var dialog = [
     (session: builder.Session, args: builder.IDialogResult<any>, next: (args?: builder.IDialogResult<any>) => void) => {      
+      // Clear options from any previous search's user values
+      clearOptions()
       const firstParam = options.searchParameters[0];
     
       // Determine which prompt type to use
@@ -18,7 +21,7 @@ function createDialog (ops: IItemSearchPromptOptions) {
         session.endDialog();
         return 'Error';
       } else if(firstParam.type === ItemPromptType.choice && firstParam.choices != undefined){
-        builder.Prompts.choice(session, firstParam.prompt, firstParam.choices);     
+        builder.Prompts.choice(session, firstParam.prompt, firstParam.choices, {listStyle: builder.ListStyle.button});     
       } else if (firstParam.type == ItemPromptType.text) {
         builder.Prompts.text(session, firstParam.prompt);
       } else if (firstParam.type == ItemPromptType.number) {
@@ -37,8 +40,8 @@ function createDialog (ops: IItemSearchPromptOptions) {
         paramVal = args.response;
       }
 
-      // Store value in user data to search against later
-      session.userData[options.searchParameters[0].name] = paramVal;
+      // Store value in options to search against later
+      options.searchParameters[0].userVal = paramVal;
 
       session.sendTyping();
       Promise.all([
@@ -52,7 +55,7 @@ function createDialog (ops: IItemSearchPromptOptions) {
           builder.Prompts.confirm(session, 'Did you find what you\'re looking for?');
         } else {
           session.send('I\'m sorry, I couldn\'t find anything that matched your search. Tell me a little more about what you\'re looking for.');  
-          return session.replaceDialog('/refineSearch');
+          return session.replaceDialog('itemSearch:refineSearch', options);
         }
       })
     },
@@ -60,7 +63,7 @@ function createDialog (ops: IItemSearchPromptOptions) {
       if (args.response) {
         session.endDialog('Glad I could help!');
       } else { // Else, ask for the next parameter
-        return session.beginDialog('refineSearch');
+        return session.beginDialog('itemSearch:refineSearch', options);
       }
     }
   ]
@@ -68,32 +71,10 @@ function createDialog (ops: IItemSearchPromptOptions) {
   return dialog;
 }
 
-function generateCards (session: builder.Session, results: [IItem]) {
-  // Only return the top 10 results in a carousel
-  let numCards;    
-  if(results.length > 10) {
-    numCards = 10;
-  } else if (results.length < 1) {
-    return false;
-  } else {
-    numCards = results.length;
-  }
-
-  let cards = [];
-  for(var i = 0; i < numCards; i++){
-    const item = results[i];
-
-    const card = new builder.HeroCard(session)
-        .title(item.title)
-        .subtitle(item.subtitle)
-        .text(item.text)
-        .images([builder.CardImage.create(session, item.imageUrl)])
-        .buttons([
-            builder.CardAction.openUrl(session, item.openUrl, 'More Details')
-        ]);
-
-    cards.push(card);
-  }
-
-  return new builder.Message(session).attachmentLayout('carousel').attachments(cards);
+function clearOptions() {
+  options.searchParameters.forEach(p => {
+    if(p.userVal) {
+      p.userVal = undefined;
+    }
+  });
 }
