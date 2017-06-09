@@ -16,15 +16,24 @@ export function generateCards (session: builder.Session, results: IItem[]) {
   for(var i = 0; i < numCards; i++){
     const item = results[i];
 
-    // TODO: MAKE SURE EACH ITEM HAS THESE FIELDS BEFORE CREATING CARD
-    const card = new builder.HeroCard(session)
-        .title(item.title)
-        .subtitle(item.subtitle)
-        .text(item.text)
-        .images([builder.CardImage.create(session, item.imageUrl)])
+    let card;
+    // If we weren't given a url to open, don't show the button
+    if(!item.openUrl){
+      card = new builder.HeroCard(session)
+        .title(item.title || '')
+        .subtitle(item.subtitle || '')
+        .text(item.text || '')
+        .images([builder.CardImage.create(session, item.imageUrl || '')]);
+    } else {
+      card = new builder.HeroCard(session)
+        .title(item.title || '')
+        .subtitle(item.subtitle || '')
+        .text(item.text || '')
+        .images([builder.CardImage.create(session, item.imageUrl || '')])
         .buttons([
             builder.CardAction.openUrl(session, item.openUrl, 'More Details')
         ]);
+    }
 
     cards.push(card);
   }

@@ -15,14 +15,24 @@ function generateCards(session, results) {
     var cards = [];
     for (var i = 0; i < numCards; i++) {
         var item = results[i];
-        var card = new builder.HeroCard(session)
-            .title(item.title)
-            .subtitle(item.subtitle)
-            .text(item.text)
-            .images([builder.CardImage.create(session, item.imageUrl)])
-            .buttons([
-            builder.CardAction.openUrl(session, item.openUrl, 'More Details')
-        ]);
+        var card = void 0;
+        if (!item.openUrl) {
+            card = new builder.HeroCard(session)
+                .title(item.title || '')
+                .subtitle(item.subtitle || '')
+                .text(item.text || '')
+                .images([builder.CardImage.create(session, item.imageUrl || '')]);
+        }
+        else {
+            card = new builder.HeroCard(session)
+                .title(item.title || '')
+                .subtitle(item.subtitle || '')
+                .text(item.text || '')
+                .images([builder.CardImage.create(session, item.imageUrl || '')])
+                .buttons([
+                builder.CardAction.openUrl(session, item.openUrl, 'More Details')
+            ]);
+        }
         cards.push(card);
     }
     return new builder.Message(session).attachmentLayout('carousel').attachments(cards);
