@@ -22,7 +22,7 @@ export interface IParam {
 
 export interface IItemSearchPromptOptions {
   searchParameters: IParam[],
-  searchFunction: ((queryParams: string[]) => IItem[]),
+  searchFunction: ((queryParams: IParam[]) => IItem[]),
 }
 
 export enum ItemPromptType {

@@ -12,7 +12,7 @@ function createDialog() {
     var dialog = [
         function (session, args, next) {
             options = args;
-            var missingParams = findMissingParams(options.searchParameters);
+            var missingParams = findMissingParams();
             if (missingParams.length < 1) {
                 return session.endDialog('I\'m sorry, I couldn\'t find any items that match your description.');
             }
@@ -43,9 +43,10 @@ function createDialog() {
                 return session.endDialog('Oops! There was an error searching for your item.');
             }
             firstParam.userVal = paramVal;
+            var foundParams = findFoundParams();
             session.sendTyping();
             Promise.all([
-                options.searchFunction([paramVal])
+                options.searchFunction(foundParams)
             ]).then(function (_a) {
                 var searchResults = _a[0];
                 var cards = generateCards_1.generateCards(session, searchResults);
@@ -54,7 +55,7 @@ function createDialog() {
                     builder.Prompts.confirm(session, 'Did you find what you\'re looking for?');
                 }
                 else {
-                    var missingEntities = findMissingParams(options.searchParameters);
+                    var missingEntities = findMissingParams();
                     if (missingEntities.length < 1) {
                         return session.endDialog('I\'m sorry, I couldn\'t find any items that match your description. I looked everywhere!');
                     }
@@ -74,7 +75,7 @@ function createDialog() {
     ];
     return dialog;
 }
-function findMissingParams(args) {
+function findMissingParams() {
     var missingParams = [];
     options.searchParameters.forEach(function (p) {
         if (!p.userVal) {
@@ -90,5 +91,14 @@ function findFirstMissingParam() {
         }
     }
     return null;
+}
+function findFoundParams() {
+    var foundParams = [];
+    options.searchParameters.forEach(function (p) {
+        if (p.userVal) {
+            foundParams.push(p);
+        }
+    });
+    return foundParams;
 }
 //# sourceMappingURL=refineSearch.js.map

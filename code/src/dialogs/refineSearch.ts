@@ -11,7 +11,7 @@ function createDialog () {
   const dialog = [
     (session: builder.Session, args: IItemSearchPromptOptions, next: (args?: builder.IDialogResult<any>) => void) => {
       options = args    
-      let missingParams = findMissingParams(options.searchParameters);
+      let missingParams = findMissingParams();
 
       // If we have values for all of the parameters but still haven't found a product match tell the user and send an error
       if (missingParams.length < 1) {
@@ -45,13 +45,17 @@ function createDialog () {
       // Store value in options to search against later
       let firstParam = findFirstMissingParam();
       if(firstParam === null) {
+        // TODO: ALERT LIB USER OF THIS CASE
         return session.endDialog('Oops! There was an error searching for your item.')
       }
       firstParam.userVal = paramVal;
+      
+      // Get array of all found parameters to pass back to the search function
+      let foundParams = findFoundParams();
 
       session.sendTyping();
       Promise.all([
-        options.searchFunction([paramVal]) // TODO: PASS ARRAY OF ALL PARAM VALS, NOT JUST THE LATEST ONE
+        options.searchFunction(foundParams) 
       ]).then(([searchResults]) => {
         // Create a card carousel for the top 10 items returned
         let cards = generateCards(session, searchResults);
@@ -62,7 +66,7 @@ function createDialog () {
           builder.Prompts.confirm(session, 'Did you find what you\'re looking for?');
         } else {
           // Check if we found all of the parameters
-          let missingEntities = findMissingParams(options.searchParameters);
+          let missingEntities = findMissingParams();
 
           // If we have values for all of the parameters but the user still wasn't happy, tell the user we didn't find anything
           if (missingEntities.length < 1) {
@@ -87,7 +91,7 @@ function createDialog () {
   return dialog;
 }
 
-function findMissingParams(args: IParam[]): IParam[] {
+function findMissingParams(): IParam[] {
   let missingParams = [];
 
   options.searchParameters.forEach(p => {
@@ -107,4 +111,16 @@ function findFirstMissingParam(): IParam {
   } 
 
   return null;
+}
+
+function findFoundParams(): IParam[] {
+  let foundParams = [];
+
+  options.searchParameters.forEach(p => {
+    if(p.userVal) {
+      foundParams.push(p);
+    }
+  });
+
+  return foundParams;
 }

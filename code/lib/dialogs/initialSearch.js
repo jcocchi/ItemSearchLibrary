@@ -14,11 +14,7 @@ function createDialog(ops) {
         function (session, args, next) {
             clearOptions();
             var firstParam = options.searchParameters[0];
-            if (!firstParam) {
-                session.endDialog();
-                return 'Error';
-            }
-            else if (firstParam.type === index_1.ItemPromptType.choice && firstParam.choices != undefined) {
+            if (firstParam.type === index_1.ItemPromptType.choice && firstParam.choices != undefined) {
                 builder.Prompts.choice(session, firstParam.prompt, firstParam.choices, { listStyle: builder.ListStyle.button });
             }
             else if (firstParam.type == index_1.ItemPromptType.text) {
@@ -29,8 +25,6 @@ function createDialog(ops) {
             }
             else if (firstParam.type == index_1.ItemPromptType.confirm) {
                 builder.Prompts.confirm(session, firstParam.prompt);
-            }
-            else {
             }
         },
         function (session, args, next) {
